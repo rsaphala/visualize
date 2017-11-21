@@ -5,7 +5,7 @@ const monitor = (req, res) => {
     // monitor circuit
 
     getBoth().then(data => {
-        console.log(data.log);
+        // console.log(data.log.date);
         res.render("index", {response: data});
     });
 
@@ -73,8 +73,31 @@ function getCircuitLog() {
                 }
             }
         }).then((response) => {
-            // console.log(response.data);
-            resolve(response.data.rsBody);
+            console.log(response.data.rsBody.Data);
+            var date = [];
+            var failed = [];
+            var tripped = [];
+
+            response.data.rsBody.Data.forEach((el) => {
+                var dateOnly = el.createdat.split('T')[0] + "";
+
+                if( date.length == 0 || date.indexOf(dateOnly) === -1 ) {
+                    date.push(dateOnly);
+                    if(el.fail) failed.push(1);
+                    else failed.push(0); 
+
+                    if(el.tripped) tripped.push(1);
+                    else tripped.push(0);
+                } 
+            });
+
+            result = {
+                date: date.sort(),
+                failed: failed,
+                tripped: tripped
+            }
+            console.log(result)
+            resolve(result);
         }).catch((error) => {
             reject(error); return;
         });
