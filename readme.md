@@ -12,6 +12,8 @@ npm start
 http://localhost:3000/
 ```
 
+[Online View](https://visualize-circuit.herokuapp.com/)
+
 ## Contributing
 
 `Andri` and `Ronaldi`
