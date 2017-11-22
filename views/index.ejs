@@ -14,24 +14,20 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12 mt10">
-                    <div class="panel  <%= (response.closed)?'panel-success' : (response.failed)? 'panel-warning' : (response.tripped)? 'panel-danger' : 'panel-primary';  %>">
+                    <div class="panel  <%= (response.closed)?'panel-success' : (response.failed)? 'panel-warning' : (response.tripped)? 'panel-danger' : 'panel-success';  %>">
                         <div class="panel-heading text-center">
-                            <i class="fa fa-desktop"></i> /sav_txn/v1/circuit_log
+                            <i class="fa fa-desktop"></i> <%= title %>
                         </div>
                         <div class="panel-body">
                             
                             <div class="col-md-12">
-                                <h3>Legend:</h3>
-                                <div class="col-md-3 label label-success"> 
-                                    <h2 class="mt10">Closed</h2>
-                                </div>
-                                <div class="col-md-3 label label-warning" style="margin-left:10px">
-                                    <h2 class="mt10">Failed</h2>
-                                </div>
-                                <div class="col-md-3 label label-danger" style="margin-left:10px">
-                                    <h2 class="mt10">Tripped</h2>
-                                </div>
+                                <b>Legend Status:</b>
+                                <span class="label label-success">Closed</span>
+                                <span class="label label-warning">Failed</span>
+                                <span class="label label-danger">Tripped</span>
                             </div>
+                            <div class="col-md-12">
+                                
                             <canvas id="myChart" style="width:300"></canvas>
                             
                         </div>
@@ -51,8 +47,8 @@
         
         <% 
             var date = JSON.stringify(response.log.date); 
-            var failed = JSON.stringify(response.log.failed); 
-            var tripped = JSON.stringify(response.log.tripped); 
+            var failedTrue = JSON.stringify(response.log.failedTrue); 
+            var trippedTrue = JSON.stringify(response.log.trippedTrue);  
         %>
          
        <!--<script src="js/script.js"></script>-->
@@ -68,7 +64,7 @@
             var data = {
                 labels: <%- date %>, //["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
                 datasets: [{
-                    label: "Failed",
+                    label: "Tripped True",
                     fill: false,
                     lineTension: 0.1,
                     //   backgroundColor: "#fff",
@@ -87,10 +83,10 @@
                     pointRadius: 4,
                     pointHitRadius: 10,
                     // notice the gap in the data and the spanGaps: true
-                    data: <%- failed %>, //[65, 59, 80, 81, 56, 55, 40, 55 ,60,55,30,78],
+                    data: <%- trippedTrue %>, //[65, 59, 80, 81, 56, 55, 40, 55 ,60,55,30,78],
                     spanGaps: true,
                     }, {
-                    label: "Tripped",
+                    label: "Failed True",
                     fill: false,
                     lineTension: 0.1,
                     //   backgroundColor: "#fff",
@@ -109,7 +105,7 @@
                     pointRadius: 4,
                     pointHitRadius: 10,
                     // notice the gap in the data and the spanGaps: false
-                    data: <%- tripped %>, //[10, 20, 60, 95, 64, 78, 90, 55,70,40,70,89],
+                    data: <%- failedTrue %>, //[10, 20, 60, 95, 64, 78, 90, 55,70,40,70,89],
                     spanGaps: true,
                     }
                 
@@ -125,7 +121,7 @@
                         },
                         scaleLabel: {
                                 display: true,
-                                labelString: 'Request',
+                                labelString: 'Request Tripped and Failed',
                                 fontSize: 20 
                             }
                     }]            
@@ -138,6 +134,8 @@
                 data: data,
                 options: options
             });
+
+            
        </script>
         
     </body>
