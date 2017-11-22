@@ -11,12 +11,15 @@
     </head>
 
     <body>
+        <h1 class="text-center">Internal</h1>
+       
+        <% for(var i = 0 ; i < response.length; i++) { %>
         <div class="container">
             <div class="row">
-                <div class="col-md-12 mt10">
-                    <div class="panel  <%= (response.closed)?'panel-success' : (response.failed)? 'panel-warning' : (response.tripped)? 'panel-danger' : 'panel-success';  %>">
+                <div class="col-md-12">
+                    <div class="panel  <%= (response[i].status.rsBody.closed)?'panel-success' : (response[i].status.rsBody.fail)? 'panel-warning' : (response[i].status.rsBody.tripped)? 'panel-danger' : 'panel-success';  %>">
                         <div class="panel-heading text-center">
-                            <i class="fa fa-desktop"></i> <%= title %>
+                            <i class="fa fa-desktop"></i> <%= title[0] %>
                         </div>
                         <div class="panel-body">
                             
@@ -27,8 +30,10 @@
                                 <span class="label label-danger">Tripped</span>
                             </div>
                             <div class="col-md-12">
-                                
-                            <canvas id="myChart" style="width:300"></canvas>
+                            <p class="text-right" style="font-size:20px;cursor:pointer">
+                                <span class="label label-warning"><i class="fa fa-refresh"></i></span>
+                            </p>
+                            <canvas id="myChart<%= i %>" style="width:300"></canvas>
                             
                         </div>
                     </div>
@@ -36,25 +41,22 @@
 
             </div>
         </div>
+        <% } %>
 
-        <!-- jquery -->
         <script src="/jquery/jquery.min.js"></script>
-        <!-- bootstrap -->
         <script src="/bootstrap/js/bootstrap.min.js"></script>
-        <!-- chart.js -->
         
         <script src="/chart.js/Chart.bundle.min.js"></script>
         
         <% 
-            var date = JSON.stringify(response.log.date); 
-            var failedTrue = JSON.stringify(response.log.failedTrue); 
-            var trippedTrue = JSON.stringify(response.log.trippedTrue);  
+            for(var i = 0 ; i < response.length; i++) {
+                var date = JSON.stringify(response[i].log.date); 
+                var failedTrue = JSON.stringify(response[i].log.failedTrue); 
+                var trippedTrue = JSON.stringify(response[i].log.trippedTrue);  
         %>
-         
-       <!--<script src="js/script.js"></script>-->
        <script>
 
-            var canvas = document.getElementById("myChart");
+            var canvas = document.getElementById("myChart<%= i %>");
             var ctx = canvas.getContext('2d');
 
             // Global Options:
@@ -137,6 +139,12 @@
 
             
        </script>
-        
+       <% } %>
+
+       <script>
+            setTimeout(() => {
+                location.reload();
+            }, 5000);
+       </script>
     </body>
 </html>

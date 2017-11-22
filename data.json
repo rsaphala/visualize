@@ -3,7 +3,7 @@
         "request": 
         [
             {
-                "url": "http://smith.tnis.com/sav_txn/v1/monitor/circuit",
+                "url": "http://localhost:8084/sav_txn/v1/monitor/circuit",
                 "data" : {
                     "rqBody": {
                         "route" : "tran_code",
@@ -12,7 +12,7 @@
                 }
             },
             {
-                "url": "http://smith.tnis.com/sav_txn/v1/monitor/circuit_log",
+                "url": "http://localhost:8084/sav_txn/v1/monitor/circuit_log",
                 "data": {
                     "rqBody": {
                         "route" : "tran_code",

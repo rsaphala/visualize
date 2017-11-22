@@ -14,16 +14,29 @@ const headers = {
 };
 
 const monitor = (req, res) => {
+    var title = [];
+    var result = [];
     filePath = __dirname+'/../data.json';
     fs.readFile(filePath, (err, data) => {
         jsondata = JSON.parse(data);
+        var max = jsondata.length;
+        
+        jsondata.forEach((el) => {
+            getBoth(el.request).then(data => {
+                // console.log(data);
+                title.push(data.status.route);
+                result.push(data);
 
-       
-        getBoth(jsondata[0].request).then(data => {
-            // console.log(data.log.date);
-            res.render("index", {response: data, title: '/tran_code'});
+                // console.log(title);
+                // console.log('-----')
+                console.log(result.length)
+                if (result.length == max) {
+                    res.render("index", {response: result, title: title});
+                }
+            });
         });
         
+        // res.send("hello");
     });
     
 }
@@ -43,8 +56,13 @@ function getMonitorCircuit(url, data) {
             headers: headers,
             data: data,
         }).then((response) => {
-            // console.log(response.data);
-            resolve(response.data.rsBody);
+            console.log(response.data.rsBody);
+
+            const result = {
+                rsBody: response.data.rsBody,
+                route: data.rqBody.route
+            };
+            resolve(result);
         }).catch((error) => {
             reject(error); return;
         });
@@ -70,7 +88,7 @@ function getCircuitLog(url, data) {
             headers: headers,
             data: data
         }).then((response) => {
-            console.log(response.data.rsBody.Data);
+            // console.log(response.data.rsBody.Data);
             var result = [];
 
             response.data.rsBody.Data.forEach((el) => {
