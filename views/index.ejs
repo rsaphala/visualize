@@ -1,0 +1,142 @@
+<html>
+    <head>
+        <title>Visualize</title>
+
+        <!-- fontawesome -->
+        <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css" />
+        <!-- bootstrap -->
+        <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css" />
+        <!-- visualize css -->
+        <link rel="stylesheet" href="css/visualize.css" />
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 mt10">
+                    <div class="panel  <%= (response.closed)?'panel-success' : (response.failed)? 'panel-warning' : (response.tripped)? 'panel-danger' : 'panel-success';  %>">
+                        <div class="panel-heading text-center">
+                            <i class="fa fa-desktop"></i> <%= title %>
+                        </div>
+                        <div class="panel-body">
+                            
+                            <div class="col-md-12">
+                                <b>Legend Status:</b>
+                                <span class="label label-success">Closed</span>
+                                <span class="label label-warning">Failed</span>
+                                <span class="label label-danger">Tripped</span>
+                            </div>
+                            <div class="col-md-12">
+                                
+                            <canvas id="myChart" style="width:300"></canvas>
+                            
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- jquery -->
+        <script src="/jquery/jquery.min.js"></script>
+        <!-- bootstrap -->
+        <script src="/bootstrap/js/bootstrap.min.js"></script>
+        <!-- chart.js -->
+        
+        <script src="/chart.js/Chart.bundle.min.js"></script>
+        
+        <% 
+            var date = JSON.stringify(response.log.date); 
+            var failedTrue = JSON.stringify(response.log.failedTrue); 
+            var trippedTrue = JSON.stringify(response.log.trippedTrue);  
+        %>
+         
+       <!--<script src="js/script.js"></script>-->
+       <script>
+
+            var canvas = document.getElementById("myChart");
+            var ctx = canvas.getContext('2d');
+
+            // Global Options:
+            Chart.defaults.global.defaultFontColor = 'black';
+            Chart.defaults.global.defaultFontSize = 16;
+
+            var data = {
+                labels: <%- date %>, //["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                datasets: [{
+                    label: "Tripped True",
+                    fill: false,
+                    lineTension: 0.1,
+                    //   backgroundColor: "#fff",
+                    borderColor: "red", // The main line color
+                    borderCapStyle: 'square',
+                    borderDash: [], // try [5, 15] for instance
+                    borderDashOffset: 0.0,
+                    borderJoinStyle: 'miter',
+                    pointBorderColor: "black",
+                    pointBackgroundColor: "white",
+                    pointBorderWidth: 1,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: "yellow",
+                    pointHoverBorderColor: "brown",
+                    pointHoverBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHitRadius: 10,
+                    // notice the gap in the data and the spanGaps: true
+                    data: <%- trippedTrue %>, //[65, 59, 80, 81, 56, 55, 40, 55 ,60,55,30,78],
+                    spanGaps: true,
+                    }, {
+                    label: "Failed True",
+                    fill: false,
+                    lineTension: 0.1,
+                    //   backgroundColor: "#fff",
+                    borderColor: "rgb(167, 105, 0)",
+                    borderCapStyle: 'butt',
+                    borderDash: [],
+                    borderDashOffset: 0.0,
+                    borderJoinStyle: 'miter',
+                    pointBorderColor: "white",
+                    pointBackgroundColor: "black",
+                    pointBorderWidth: 1,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: "brown",
+                    pointHoverBorderColor: "yellow",
+                    pointHoverBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHitRadius: 10,
+                    // notice the gap in the data and the spanGaps: false
+                    data: <%- failedTrue %>, //[10, 20, 60, 95, 64, 78, 90, 55,70,40,70,89],
+                    spanGaps: true,
+                    }
+                
+                ]
+            };
+
+            // Notice the scaleLabel at the same level as Ticks
+            var options = {
+            scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true
+                        },
+                        scaleLabel: {
+                                display: true,
+                                labelString: 'Request Tripped and Failed',
+                                fontSize: 20 
+                            }
+                    }]            
+                }  
+            };
+
+            // Chart declaration:
+            var myBarChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: options
+            });
+
+            
+       </script>
+        
+    </body>
+</html>

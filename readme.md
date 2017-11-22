@@ -7,6 +7,9 @@
 git clone https://github.com/rsaphala/visualize.git
 cd visualize/
 npm install
+
+npm start
+http://localhost:3000/
 ```
 
 ## Contributing

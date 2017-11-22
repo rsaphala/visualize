@@ -1,0 +1,25 @@
+[
+    {
+        "request": 
+        [
+            {
+                "url": "http://smith.tnis.com/sav_txn/v1/monitor/circuit",
+                "data" : {
+                    "rqBody": {
+                        "route" : "tran_code",
+                        "service": "general_transaction_rule"
+                    }
+                }
+            },
+            {
+                "url": "http://smith.tnis.com/sav_txn/v1/monitor/circuit_log",
+                "data": {
+                    "rqBody": {
+                        "route" : "tran_code",
+                        "range": 7
+                    }
+                } 
+            }
+        ]
+    }
+]
