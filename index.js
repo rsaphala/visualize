@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const monitorCtrl = require('./controllers/monitor');
 // var request = require('request');
 const app = express();
+const PORT = process.env.PORT || 3000
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,6 +23,6 @@ app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist/'));
 
 app.get('/', monitorCtrl.monitor);
 
-app.listen(3000, () => console.log('Listen port 3000'));
+app.listen(PORT, () => console.log('Listen port '+ PORT));
 
 module.exports = app;
