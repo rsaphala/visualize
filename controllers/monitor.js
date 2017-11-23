@@ -42,9 +42,10 @@ const monitor = (req, res) => {
 }
 
 async function getBoth(request) {
-    const status = await getMonitorCircuit(request[0].url, request[0].data);
-    const log = await getCircuitLog( request[1].url, request[1].data );
-
+    const status = await getMonitorCircuit(request[0].url, request[0].data).catch(()=>{return -1;});
+    const log = await getCircuitLog( request[1].url, request[1].data ).catch(()=>{
+        return -1;
+    });
     return {status: status, log: log};
 }
 

@@ -23,6 +23,6 @@ app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist/'));
 
 app.get('/', monitorCtrl.monitor);
 
-app.listen(PORT, () => console.log('Listen port '+ PORT));
+app.listen(PORT, () => console.log(`Listen port ${PORT}`));
 
 module.exports = app;
