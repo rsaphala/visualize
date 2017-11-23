@@ -14,6 +14,7 @@ const headers = {
 };
 
 const monitor = (req, res) => {
+    console.log(new Date());
     var title = [];
     var result = [];
     filePath = __dirname+'/../data.json';
@@ -23,13 +24,10 @@ const monitor = (req, res) => {
         
         jsondata.forEach((el) => {
             getBoth(el.request).then(data => {
-                // console.log(data);
                 title.push(data.status.route);
                 result.push(data);
 
-                // console.log(title);
-                // console.log('-----')
-                console.log(result.length)
+                // console.log(result.length)
                 if (result.length == max) {
                     res.render("index", {response: result, title: title});
                 }
