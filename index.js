@@ -21,7 +21,14 @@ app.use('/font-awesome', express.static(__dirname + '/node_modules/font-awesome/
 app.use('/chart.js', express.static(__dirname + '/node_modules/chart.js/dist/'));
 app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist/'));
 
-app.get('/', monitorCtrl.monitor);
+app.get('/monitor_log/:id', monitorCtrl.monitorLog);
+app.get('/', monitorCtrl.monitorStatus);
+app.get('/status', monitorCtrl.monitorStatusInterval);
+
+
+
+// app.get('/circuit_log', monitorCtrl.getCircuitLogEndpoint);
+
 
 app.listen(PORT, () => console.log(`Listen port ${PORT}`));
 

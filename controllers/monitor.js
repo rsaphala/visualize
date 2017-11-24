@@ -1,73 +1,144 @@
+const helpers = require('./helpers');
 const axios = require('axios');
-const fs = require('fs');
+const dataJSON = require('../data.json');
 
-// set headers
-const headers = {
-    "Content-Type":"application/json",
-    'x-request-id':'c0d519ea-c3bd-4818-8f86-8b67dc876457',
-    "x-real-ip":"localhost",
-    "x-caller-service":"client",
-    "x-caller-domain":"caller-domain",
-    "x-device":"android",
-    "datetime":"2017-08-24T13:43:56.41906615Z",
-    "accept":"application/json"
+// const getHome = (req, res) => {
+//     res.render('index', {})
+// }
+
+const monitorLog = (req, res) => {
+    console.log(new Date());
+    
+    // read json
+    // status
+   
+    // log
+    const { url, data } = dataJSON.log;
+
+    axios({
+        method: 'POST',
+        url: url, 
+        headers: helpers.headers,
+        data: data[req.params.id]
+    }).then((response) => {
+        // console.log(response.data.rsBody.Data);
+        var result = [];
+
+        response.data.rsBody.Data.forEach((el) => {
+            var obj = {
+                date: '',
+                failed: {
+                    true: 0,
+                    false: 0
+                },
+                tripped: {
+                    true: 0,
+                    false: 0
+                }
+            };
+            var dateOnly = el.createdat.split('T')[0];
+
+            if ( search(dateOnly, result) === -1 ) {
+                obj.date = dateOnly;
+                result.push(obj);
+            }
+
+            var found = search(dateOnly, result);
+            if( found  !== -1 ) {
+                ( el.fail )? found.failed.true++ : found.failed.false++ ;
+                ( el.tripped )? found.tripped.true++ : found.tripped.false++ ;
+            }
+            
+        });
+        var date = [];
+        var failedTrue = [];
+        var failedFalse = [];
+        var trippedTrue = [];
+        var trippedFalse = [];
+        result.forEach((el) => {
+            date.push(el.date);
+            failedTrue.push(el.failed.true);
+            failedFalse.push(el.failed.false);
+            trippedTrue.push(el.tripped.true);
+            trippedFalse.push(el.tripped.false);
+        });
+        // console.log(result);
+
+        endResult = {
+            date: date,
+            failedTrue: failedTrue,
+            failedFalse: failedFalse,
+            trippedTrue: trippedTrue,
+            trippedFalse: trippedFalse,
+            title: data[req.params.id].rqBody.route
+        }
+        console.log(endResult)
+        res.send({ response : endResult });
+    }).catch((error) => {
+        console.log(error);
+    });
+
+    
 };
 
-const monitor = (req, res) => {
-    console.log(new Date());
-    var title = [];
-    var result = [];
-    filePath = __dirname+'/../data.json';
-    fs.readFile(filePath, (err, data) => {
-        jsondata = JSON.parse(data);
-        var max = jsondata.length;
-        
-        jsondata.forEach((el) => {
-            getBoth(el.request).then(data => {
-                title.push(data.status.route);
-                result.push(data);
+const monitorStatus = (req, res) => {
+    const { url, data } = dataJSON.status;
+    let result = [];
+    const max = data.length;
 
-                // console.log(result.length)
-                if (result.length == max) {
-                    res.render("index", {response: result, title: title});
-                }
-            });
-        });
-        
-        // res.send("hello");
-    });
-    
-}
-
-async function getBoth(request) {
-    const status = await getMonitorCircuit(request[0].url, request[0].data).catch(()=>{return -1;});
-    const log = await getCircuitLog( request[1].url, request[1].data ).catch(()=>{
-        return -1;
-    });
-    return {status: status, log: log};
-}
-
-function getMonitorCircuit(url, data) {
-    return new Promise( (resolve, reject) => {
+    data.map((rqBody, idx) =>  {
+        // get status
         axios({
             method: 'POST',
             url: url, 
-            headers: headers,
-            data: data,
+            headers: helpers.headers,
+            data: rqBody,
         }).then((response) => {
-            console.log(response.data.rsBody);
-
-            const result = {
-                rsBody: response.data.rsBody,
-                route: data.rqBody.route
-            };
-            resolve(result);
-        }).catch((error) => {
-            reject(error); return;
-        });
-
-    });
     
+            let tmp = {
+                status: response.data.rsBody,
+                route: rqBody.rqBody.route
+            };
+            result.push(tmp);
+            console.log(result);
+            
+            if ( result.length === max ) {
+                res.render('index', {resultStatus : result});
+            }
+        }).catch((error) => {
+            console.log(error.message);
+        });
+    });
+}
+
+const monitorStatusInterval = (req, res) => {
+    const { url, data } = dataJSON.status;
+    let result = [];
+    const max = data.length;
+
+    data.map((rqBody, idx) =>  {
+        // get status
+        axios({
+            method: 'POST',
+            url: url, 
+            headers: helpers.headers,
+            data: rqBody,
+        }).then((response) => {
+    
+            let tmp = {
+                status: response.data.rsBody,
+                route: rqBody.rqBody.route
+            };
+            result.push(tmp);
+            console.log(result);
+            
+            if ( result.length === max ) {
+                res.send({resultStatus : result});
+            }
+        }).catch((error) => {
+            console.log(error.message);
+        });
+    });
 }
 
 function search(nameKey, myArray){
@@ -79,74 +150,5 @@ function search(nameKey, myArray){
     return -1;
 }
 
-function getCircuitLog(url, data) {
-    return new Promise( (resolve, reject) => {
-        axios({
-            method: 'POST',
-            url: url, 
-            headers: headers,
-            data: data
-        }).then((response) => {
-            // console.log(response.data.rsBody.Data);
-            var result = [];
 
-            response.data.rsBody.Data.forEach((el) => {
-                var obj = {
-                    date: '',
-                    failed: {
-                        true: 0,
-                        false: 0
-                    },
-                    tripped: {
-                        true: 0,
-                        false: 0
-                    }
-                };
-                var dateOnly = el.createdat.split('T')[0];
-
-                if ( search(dateOnly, result) === -1 ) {
-                    obj.date = dateOnly;
-                    result.push(obj);
-                }
-
-                var found = search(dateOnly, result);
-                if( found  !== -1 ) {
-                    ( el.fail )? found.failed.true++ : found.failed.false++ ;
-                    ( el.tripped )? found.tripped.true++ : found.tripped.false++ ;
-                }
-                
-            });
-            var date = [];
-            var failedTrue = [];
-            var failedFalse = [];
-            var trippedTrue = [];
-            var trippedFalse = [];
-            result.forEach((el) => {
-                date.push(el.date);
-                failedTrue.push(el.failed.true);
-                failedFalse.push(el.failed.false);
-                trippedTrue.push(el.tripped.true);
-                trippedFalse.push(el.tripped.false);
-            });
-            // console.log(result);
-
-            endResult = {
-                date: date,
-                failedTrue: failedTrue,
-                failedFalse: failedFalse,
-                trippedTrue: trippedTrue,
-                trippedFalse: trippedFalse,
-            }
-            console.log(endResult)
-            resolve(endResult);
-        }).catch((error) => {
-            reject(error); return;
-        });
-
-    });
-    
-}
-
-
-
-module.exports = {monitor};
+module.exports = { monitorLog, monitorStatus, monitorStatusInterval };

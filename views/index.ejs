@@ -12,14 +12,31 @@
 
     <body>
         <h1 class="text-center">Internal</h1>
-       
-        <% for(var i = 0 ; i < response.length; i++) { %>
+
+        <% 
+            var currIdx = 0;
+            var i = 0;
+            var result = {
+                date:
+                [ '2017-11-19',
+                    '2017-11-20',
+                    '2017-11-21',
+                    '2017-11-22',
+                    '2017-11-23',
+                    '2017-11-24' ],
+                failedTrue: [ 3, 6, 3, 3, 9, 18 ],
+                failedFalse: [ 2, 2, 1, 2, 9, 12 ],
+                trippedTrue: [ 1, 2, 1, 1, 3, 6 ],
+                trippedFalse: [ 4, 6, 3, 4, 15, 24 ]   
+            }; 
+        %>
+        <input type="hidden" name="hidden_val" value="<%= i %>">
         <div class="container">
             <div class="row">
-                <div class="col-md-12">
-                    <div class="panel  <%= (response[i].status.rsBody.closed)?'panel-success' : (response[i].status.rsBody.fail)? 'panel-warning' : (response[i].status.rsBody.tripped)? 'panel-danger' : 'panel-success';  %>">
+                <div class="col-md-8">
+                    <div class="panel <%= (resultStatus[i].closed)?'panel-success' : (resultStatus[i].fail)? 'panel-warning' : (resultStatus[i].tripped)? 'panel-danger' : 'panel-success';  %>">
                         <div class="panel-heading text-center">
-                            <i class="fa fa-desktop"></i> <%= title[i] %>
+                            <i class="fa fa-desktop"></i> <span id="panel-route"><%= resultStatus[i].route %> </span>
                         </div>
                         <div class="panel-body">
                             
@@ -29,129 +46,114 @@
                                 <span class="label label-warning">Failed</span>
                                 <span class="label label-danger">Tripped</span>
                             </div>
-                            <!-- <div class="col-md-12">
-                                <p class="text-right" style="font-size:20px;cursor:pointer">
-                                    <span class="label label-warning"><i class="fa fa-refresh"></i></span>
-                                </p>
-                            </div> -->
-                            <canvas id="myChart<%= i %>" style="width:300"></canvas>
-                            
+
+                            <%- include monitor_log %>
+
                         </div>
                     </div>
                 </div>
 
+                <div class="col-md-4">
+                    <table class="table table-stripped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Route</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for(var a = 0 ; a < resultStatus.length; a++) { %>
+                            <tr onclick="getLog(<%= a %>)">
+                                <td id="id-<%= a %>"><%= a+1 %></td>
+                                <td id="route-<%= a %>"><%= resultStatus[a].route %></td>
+                                <td id="status-<%= a %>">
+                                    <% if(resultStatus[a].tripped) { %>
+                                        <span class="label label-danger">Tripped</span>
+                                    <% } else if(resultStatus[a].fail) { %>
+                                        <span class="label label-warning">Failed</span>
+                                    <% } else { %>
+                                        <span class="label label-success">Closed</span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
-        <% } %>
 
         <script src="/jquery/jquery.min.js"></script>
         <script src="/bootstrap/js/bootstrap.min.js"></script>
         
         <script src="/chart.js/Chart.bundle.min.js"></script>
         
-        <% 
-            for(var i = 0 ; i < response.length; i++) {
-                var date = JSON.stringify(response[i].log.date); 
-                var failedTrue = JSON.stringify(response[i].log.failedTrue); 
-                var trippedTrue = JSON.stringify(response[i].log.trippedTrue);  
-        %>
+    
        <script>
-
-            var canvas = document.getElementById("myChart<%= i %>");
-            var ctx = canvas.getContext('2d');
-
-            // Global Options:
-            Chart.defaults.global.defaultFontColor = 'black';
-            Chart.defaults.global.defaultFontSize = 16;
-
-            var data = {
-                labels: <%- date %>, //["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                datasets: [
-                    {
-                        label: "Tripped True",
-                        fill: false,
-                        lineTension: 0.1,
-                        //   backgroundColor: "#fff",
-                        borderColor: "rgb(167, 105, 0)", // The main line color
-                        borderCapStyle: 'square',
-                        borderDash: [], // try [5, 15] for instance
-                        borderDashOffset: 0.0,
-                        borderJoinStyle: 'miter',
-                        pointBorderColor: "black",
-                        pointBackgroundColor: "white",
-                        pointBorderWidth: 1,
-                        pointHoverRadius: 8,
-                        pointHoverBackgroundColor: "yellow",
-                        pointHoverBorderColor: "brown",
-                        pointHoverBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHitRadius: 10,
-                        // notice the gap in the data and the spanGaps: true
-                        data: <%- trippedTrue %>, //[65, 59, 80, 81, 56, 55, 40, 55 ,60,55,30,78],
-                        spanGaps: true,
-                    }, 
-                    {
-                        label: "Failed True",
-                        fill: false,
-                        lineTension: 0.1,
-                        //   backgroundColor: "#fff",
-                        borderColor: "red",
-                        borderCapStyle: 'butt',
-                        borderDash: [],
-                        borderDashOffset: 0.0,
-                        borderJoinStyle: 'miter',
-                        pointBorderColor: "white",
-                        pointBackgroundColor: "black",
-                        pointBorderWidth: 1,
-                        pointHoverRadius: 8,
-                        pointHoverBackgroundColor: "brown",
-                        pointHoverBorderColor: "yellow",
-                        pointHoverBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHitRadius: 10,
-                        // notice the gap in the data and the spanGaps: false
-                        data: <%- failedTrue %>, //[10, 20, 60, 95, 64, 78, 90, 55,70,40,70,89],
-                        spanGaps: true,
-                    }
-                
-                ]
-            };
-
-            // Notice the scaleLabel at the same level as Ticks
-            var options = {
-            scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero:true
-                        },
-                        scaleLabel: {
-                                display: true,
-                                labelString: 'Request Tripped and Failed',
-                                fontSize: 20 
+            setInterval(() => {
+                console.log(new Date());
+                $.get('/status', ({resultStatus}, status) => {
+                    if (status === 'success') {
+                        // console.log(resultStatus)
+                        resultStatus.map((data, idx) => {
+                            // console.log(idx)
+                            const status = data.status;
+                            let result; let panel;
+                            // update table status
+                            if( status.tripped ) {
+                                result = '<span class="label label-danger">Tripped</span>';
+                                panel = 'panel-danger';
+                            } else if( status.fail ) {
+                                result = '<span class="label label-warning">Failed</span>';
+                                panel = 'panel-warning';
+                            } else {
+                                result = '<span class="label label-success">Closed</span>';
+                                panel = 'panel-success';
                             }
-                    }]            
-                }  
-            };
+                            $('#status-'+idx).html(result);
+                            $('#route-'+idx).html(data.route);
+                            
+                            // update panel status
+                            $('#panel-'+idx).removeClass('panel-danger');
+                            $('#panel-'+idx).removeClass('panel-warning');
+                            $('#panel-'+idx).removeClass('panel-success');
+                            $('#panel-'+idx).addClass(panel);
 
-            // Chart declaration:
-            var myBarChart = new Chart(ctx, {
-                type: 'line',
-                data: data,
-                options: options
-            });
-
-            
-       </script>
-       <% } %>
-
-       <script src="js/logic.js"></script>
-       <script>
-            setTimeout(() => {
-                // location.reload();
-                $.get('/', (data, status) => {
-                   $('body').html(data).text
+                            console.log(data)
+                        });
+                    }
+                    
                 });
             }, 5000);
+       </script>
+
+       <script>
+            $('#refresh').click(() => {
+                getLog(currIdx)
+            });
+
+            const getLog = (idx) => {
+                currIdx = idx
+
+                $.get('/monitor_log/'+idx, ({response}, status) => {
+                    console.log("INI INDEX ======> " + idx)
+                    console.log(response)
+                    result = response
+                    data.label = response.date;
+                    data.datasets[0].data = response.failedTrue
+                    data.datasets[1].data = response.trippedTrue
+                    
+                    var myBarChart = new Chart(ctx, {
+                        type: 'line',
+                        data: data,
+                        options: options
+                    });
+                    
+                    $('#panel-route').html(response.title)
+                });
+            }
        </script>
     </body>
 </html>
